@@ -888,7 +888,7 @@ void MDNSResponder::_parsePacket(){
           else {
             answer = _answers;
             while (answer->next != nullptr) {
-              answer = answers->next;
+              answer = answer->next;
             }
             answer->next = new MDNSAnswerList();
             answer = answer->next;
