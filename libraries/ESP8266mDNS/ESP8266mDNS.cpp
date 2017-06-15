@@ -333,7 +333,7 @@ bool MDNSResponder::addServiceTxt(char *name, char *proto, char *key, char *valu
       //found a service name match
       if (servicePtr->_txtLen + txtLen > 1300) 
         return false;  //max txt record size
-      MDNSTxt *newtxt = new MDNSTxt;
+      MDNSTxt *newtxt = new MDNSTxt();
       newtxt->_txt = String(key) + "=" + String(value);
       newtxt->_next = 0;
       if(servicePtr->_txts == 0) { //no services have been added
@@ -717,6 +717,9 @@ void MDNSResponder::_parsePacket(){
           DEBUG_ESP_PORT.println("failed to read the response name");
 #endif
           _conn->flush();
+          if(txtPtr){
+            delete txtPtr;
+          }
           return;
         }
         _conn_readS(serviceName, tmp8);
@@ -763,6 +766,9 @@ void MDNSResponder::_parsePacket(){
         DEBUG_ESP_PORT.printf("Data len too long! %u\n", answerRdlength);
 #endif
           _conn->flush();
+          if(txtPtr){
+            delete txtPtr;
+          }
           return;
         }
       }
@@ -790,7 +796,7 @@ void MDNSResponder::_parsePacket(){
       else if (answerType == MDNS_TYPE_TXT) {
         partsCollected |= 0x02;
         while(answerRdlength){
-          MDNSTxt *newtxt = new MDNSTxt;
+          MDNSTxt *newtxt = new MDNSTxt();
           uint16_t txtRdLength = _conn_read8();
           answerRdlength--;
           txtRdLength = (answerRdlength<txtRdLength)?answerRdlength:txtRdLength; //in case the packet is malformed
@@ -917,11 +923,15 @@ void MDNSResponder::_parsePacket(){
           delete answer;
         }
         _conn->flush();
+        //NOTE: don't delete txtPtr because it's either part of _answers or has been deleted
         return;
       }
     }
     
     _conn->flush();
+    if(txtPtr){
+      delete txtPtr;
+    }
     return;
   }
 
