@@ -464,8 +464,8 @@ int MDNSResponder::queryService(char *service, char *proto) {
     };
     _conn->append(reinterpret_cast<const char*>(ptrAttrs), 4);
     if(!_conn->send()){
-#ifdef MDNS_DEBUG_ERR
-      Serial.println("ERROR: Query send failed!");
+#ifdef DEBUG_ESP_MDNS_TX
+      DEBUG_ESP_PORT.println("ERROR: Query send failed!");
 #endif
     }
   }
@@ -887,6 +887,7 @@ void MDNSResponder::_parsePacket(){
       }
 
       if ((partsCollected == 0x0F) && serviceMatch) {
+        if(_waitingForAnswers){
 #ifdef DEBUG_ESP_MDNS_RX
         DEBUG_ESP_PORT.println("All answers parsed, adding to _answers list..");
 #endif
@@ -1433,8 +1434,8 @@ void MDNSResponder::_replyToInstanceRequest(uint8_t questionMask, uint8_t respon
   ifaddr.addr = multicastInterface;
   _conn->setMulticastInterface(ifaddr);
   if(!_conn->send()){
-#ifdef MDNS_DEBUG_ERR
-    Serial.println("ERROR: Reply send failed!");
+#ifdef DEBUG_ESP_MDNS_TX
+    DEBUG_ESP_PORT.println("ERROR: Reply send failed!");
 #endif
   }
 }
