@@ -178,7 +178,7 @@ std::pair<String,String> MDNSAnswer::getTxt(int idx){
   if(loc == -1){
     return std::make_pair(tmp,String());
   }
-  else if(loc+1 == tmp.length()){ //the = is the last character
+  else if(loc+1 == int(tmp.length())){ //the = is the last character
     return std::make_pair(tmp.substring(0,loc),String());
   }
   else{
@@ -384,12 +384,10 @@ int MDNSResponder::queryService(char *service, char *proto) {
 #ifdef DEBUG_ESP_MDNS_TX
   DEBUG_ESP_PORT.printf("queryService %s %s\n", service, proto);
 #endif  
-  while(_answers!=0){
-    MDNSAnswer *currAnswer = _answers;
-    _answers = _answers->next;
-    os_free(currAnswer->hostname);
-    os_free(currAnswer);
-    currAnswer = 0;
+  // Clear answer list
+  if(_answers != nullptr){
+    delete _answers;
+    _answers = nullptr;
   }
   if (_query != 0) {
     os_free(_query);
